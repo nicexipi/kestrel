@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "nodemon src/index.js",
-    "build": "tsc",
+    "build": "tsc && cd client && npm run build",
     "test": "jest --passWithNoTests",
     "lint": "eslint src --ext .js,.ts",
     "lint:fix": "eslint src --ext .js,.ts --fix",
