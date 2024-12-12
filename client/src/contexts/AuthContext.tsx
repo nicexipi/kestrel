@@ -6,11 +6,13 @@ import { AuthContext, User } from './auth-context';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const login = useCallback(async (email: string, password: string): Promise<void> => {
     try {
+      setIsLoading(true);
       const response = await axios.post<{ token: string; user: User }>('/api/auth/login', {
         email,
         password,
@@ -26,6 +28,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         variant: 'destructive',
       });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   }, [navigate, toast]);
 
@@ -37,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = useCallback(async (username: string, email: string, password: string): Promise<void> => {
     try {
+      setIsLoading(true);
       const response = await axios.post<{ token: string; user: User }>('/api/auth/register', {
         username,
         email,
@@ -53,11 +58,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         variant: 'destructive',
       });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   }, [navigate, toast]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, register }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, register }}>
       {children}
     </AuthContext.Provider>
   );
