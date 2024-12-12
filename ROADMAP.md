@@ -1,117 +1,147 @@
 # Roadmap do Projeto Kestrel
 
-## ✅ Funcionalidades Implementadas
+## 🚀 Estado Atual do Projeto
 
-### 1. Autenticação
-- Registo de utilizadores
-- Login/Logout
-- Proteção de rotas
+### ✅ Completamente Implementado
+
+#### 1. Infraestrutura Base
+- Pipeline CI/CD com GitHub Actions
+- ESLint e Prettier configurados
+- TypeScript configurado (backend e frontend)
+- Docker e Docker Compose
+- Estrutura de logs com Winston
+- Middleware de segurança (CORS, CSRF, Rate Limiting)
+
+#### 2. Autenticação Base
+- Sistema de login/registo
 - Gestão de tokens JWT
+- Proteção de rotas no frontend e backend
+- Middleware de autenticação
 
-### 2. Integração BGG
-- Configuração da API do BGG
-- Importação da coleção de jogos
-- Sincronização de dados básicos dos jogos
-
-### 3. Interface Base
+#### 3. Interface Base
+- Componentes UI base (Button, Card, Input, etc.)
 - Layout principal com navegação
-- Páginas base (Welcome, Login, Register, etc.)
-- Sistema de notificações (toasts)
-- Componentes UI reutilizáveis
+- Sistema de notificações (toast)
+- Páginas estáticas (Welcome, Terms, Privacy)
 
-### 4. Infraestrutura
-- Base de dados configurada
-- Sistema de logging
-- Middleware de segurança
-- Pipeline CI/CD
+### 🔨 Parcialmente Implementado
 
-## 🚧 Funcionalidades Pendentes
+#### 1. Integração BGG
+- ✅ Configuração básica da API
+- ✅ Estrutura de serviços
+- ❌ Importação completa da coleção
+- ❌ Gestão de erros
+- ❌ Sistema de cache
 
-### Fase 1 - MVP (Core)
+#### 2. Gestão de Utilizadores
+- ✅ Registo e autenticação
+- ✅ Perfil básico
+- ❌ Edição de perfil
+- ❌ Preferências
+- ❌ Gestão da coleção
 
-#### 1. Sistema de Comparação
-- [ ] Implementar lógica de seleção de jogos para comparação
-- [ ] Algoritmo de ranking
-- [ ] Sistema de pontuação
+#### 3. Base de Dados
+- ✅ Schema básico Prisma
+- ✅ Modelos base
+- ❌ Relações completas
+- ❌ Índices e otimizações
+- ❌ Migrations de produção
+
+## 🎯 Próximos Passos (MVP)
+
+### 1. Sistema de Dimensões
+- [ ] Modelo de dados para dimensões
+- [ ] CRUD de dimensões
+- [ ] API de dimensões
+- [ ] Interface de gestão
+- [ ] Validações e regras de negócio
+
+### 2. Sistema de Comparação
+- [ ] Algoritmo de seleção de jogos
+- [ ] Interface de comparação
+- [ ] Lógica de pontuação
+- [ ] Persistência de resultados
 - [ ] Histórico de comparações
 
-#### 2. Gestão de Dimensões
-- [ ] CRUD de dimensões de avaliação
-- [ ] Pesos personalizados por dimensão
-- [ ] Interface de gestão de dimensões
-- [ ] Validação de dimensões
+### 3. Sistema de Ranking
+- [ ] Algoritmo de ranking
+- [ ] Cálculo de pontuações
+- [ ] Visualização de rankings
+- [ ] Filtros e ordenação
+- [ ] Exportação de dados
 
-#### 3. Rankings
-- [ ] Geração de rankings baseados nas comparações
-- [ ] Visualiza��ão de rankings por dimensão
-- [ ] Exportação de rankings
-- [ ] Histórico de alterações no ranking
+### 4. Gestão de Jogos
+- [ ] Sincronização completa com BGG
+- [ ] Cache de dados
+- [ ] Atualização periódica
+- [ ] Gestão de erros
+- [ ] Interface de administração
 
-#### 4. Perfil de Utilizador
-- [ ] Edição de perfil
-- [ ] Preferências de utilizador
-- [ ] Estatísticas de uso
-- [ ] Gestão da coleção
+## 🔄 Fase de Melhorias
 
-### Fase 2 - Melhorias
-
-#### 5. Sincronização BGG Avançada
-- [ ] Sincronização periódica automática
-- [ ] Gestão de erros de sincronização
-- [ ] Interface de progresso de sincronização
-- [ ] Cache de dados do BGG
-
-#### 6. Funcionalidades Sociais
-- [ ] Partilha de rankings
-- [ ] Comparação de rankings entre utilizadores
-- [ ] Comentários em jogos
-- [ ] Sistema de seguir utilizadores
-
-#### 7. Análise e Estatísticas
-- [ ] Dashboard com estatísticas
-- [ ] Gráficos de evolução
-- [ ] Análise de tendências
-- [ ] Relatórios exportáveis
-
-#### 8. Gestão de Jogos
-- [ ] Edição manual de informações de jogos
-- [ ] Adição de jogos não presentes no BGG
-- [ ] Marcadores/tags personalizados
-- [ ] Notas privadas
-
-### Fase 3 - Polimento
-
-#### 9. Melhorias de UX
-- [ ] Feedback visual durante comparações
+### 1. Experiência do Utilizador
+- [ ] Feedback visual em ações
 - [ ] Animações e transições
 - [ ] Modo escuro
-- [ ] Interface responsiva melhorada
+- [ ] Interface responsiva
+- [ ] Otimização de performance
 
-#### 10. Funcionalidades Avançadas
+### 2. Funcionalidades Sociais
+- [ ] Perfis públicos
+- [ ] Partilha de rankings
+- [ ] Comparação entre utilizadores
+- [ ] Sistema de seguir
+- [ ] Notificações
+
+### 3. Análise e Estatísticas
+- [ ] Dashboard pessoal
+- [ ] Estatísticas da coleção
+- [ ] Gráficos e visualizações
+- [ ] Relatórios exportáveis
+- [ ] Análise de tendências
+
+## 🎮 Funcionalidades Avançadas
+
+### 1. Gamificação
 - [ ] Sistema de achievements
-- [ ] Recomendações baseadas em preferências
-- [ ] Integração com outras plataformas
-- [ ] API pública documentada
+- [ ] Níveis de utilizador
+- [ ] Badges e recompensas
+- [ ] Desafios periódicos
 
-#### 11. Testes
-- [ ] Testes unitários completos
+### 2. Integrações
+- [ ] API pública
+- [ ] Webhooks
+- [ ] Integrações com outras plataformas
+- [ ] Sistema de plugins
+
+### 3. Machine Learning
+- [ ] Recomendações personalizadas
+- [ ] Análise de preferências
+- [ ] Previsão de ratings
+- [ ] Clusters de utilizadores
+
+## 📈 Melhorias Contínuas
+
+### 1. Testes
+- [ ] Testes unitários (>80% cobertura)
 - [ ] Testes de integração
-- [ ] Testes end-to-end
+- [ ] Testes E2E
 - [ ] Testes de performance
 
-#### 12. Documentação
-- [ ] Manual do utilizador
-- [ ] Documentação técnica detalhada
-- [ ] Guias de contribuição expandidos
-- [ ] Exemplos de uso da API
+### 2. Documentação
+- [ ] Documentação técnica
+- [ ] API docs
+- [ ] Guias de utilizador
+- [ ] Guias de contribuição
 
-## Prioridades
+### 3. DevOps
+- [ ] Monitorização
+- [ ] Alertas
+- [ ] Backups automáticos
+- [ ] Disaster recovery
 
-1. **Fase 1 - MVP**: Funcionalidades essenciais para ter um produto utilizável
-2. **Fase 2 - Melhorias**: Funcionalidades que melhoram a experiência do utilizador
-3. **Fase 3 - Polimento**: Refinamentos e funcionalidades avançadas
-
-## Notas
-- Este roadmap é um documento vivo e será atualizado conforme o desenvolvimento avança
-- As prioridades podem ser ajustadas com base no feedback dos utilizadores
-- Cada funcionalidade será desenvolvida seguindo as melhores práticas de código e testes 
+## 📝 Notas
+- Este roadmap é atualizado regularmente
+- Prioridades podem mudar com base no feedback
+- Cada feature requer testes e documentação
+- Desenvolvimento segue práticas de código limpo
