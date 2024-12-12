@@ -1,5 +1,5 @@
 branches:
-  - name: main
+  - name: master
     protection:
       required_status_checks:
         strict: true

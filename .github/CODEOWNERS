@@ -1,0 +1,16 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# @nicexipi will be requested for review when someone 
+# opens a pull request.
+*       @nicexipi
+
+# Backend code
+/src/   @nicexipi
+/prisma/ @nicexipi
+
+# Frontend code
+/client/ @nicexipi
+
+# CI/CD and GitHub configurations
+/.github/ @nicexipi
+*.yml    @nicexipi 
