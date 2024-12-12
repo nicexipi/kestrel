@@ -57,8 +57,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }): JSX
 };
 
 function AppRoutes(): JSX.Element {
-  const { user, isLoading } = useAuth();
-  const navigate = useNavigate();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return <LoadingScreen />;
