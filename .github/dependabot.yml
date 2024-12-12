@@ -10,6 +10,8 @@ updates:
     labels:
       - "dependencies"
       - "backend"
+    reviewers:
+      - "nicexipi"
 
   # Frontend dependencies
   - package-ecosystem: "npm"
@@ -21,12 +23,17 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
+    reviewers:
+      - "nicexipi"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 10
     labels:
       - "dependencies"
-      - "ci" 
+      - "github-actions"
+    reviewers:
+      - "nicexipi" 
