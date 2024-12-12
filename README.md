@@ -1,6 +1,8 @@
-# Kestrel Board Game Ranking
+# Kestrel - Sistema de Ranking de Jogos de Tabuleiro
 
-Sistema de classificação e ranking de jogos de tabuleiro com cálculo dinâmico de pontuações e comparações personalizadas.
+[![CI/CD](https://github.com/nicexipi/kestrel/actions/workflows/ci.yml/badge.svg)](https://github.com/nicexipi/kestrel/actions/workflows/ci.yml)
+
+Sistema de classificação e ranking de jogos de tabuleiro usando análise comparativa.
 
 ## 🚀 Tecnologias
 
