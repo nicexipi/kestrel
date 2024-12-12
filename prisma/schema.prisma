@@ -1,0 +1,204 @@
+// This is your Prisma schema file
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  bggUsername   String?   // Nome de utilizador no BGG
+  lastBggSync   DateTime? // Última sincronização com BGG
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  userGames     UserGame[]
+  comparisons   Comparison[]
+  adjustedScores AdjustedScore[]
+  adjustedRankings AdjustedRanking[]
+}
+
+model Game {
+  id            String    @id @default(uuid())
+  name          String
+  bggId         Int?      @unique
+  imageUrl      String?
+  yearPublished Int?
+  minPlayers    Int?
+  maxPlayers    Int?
+  playtime      String?
+  complexity    Decimal?  @db.Decimal(3, 2)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  userGames     UserGame[]
+  categories    GameCategoryAssignment[]
+  mechanics     GameMechanicAssignment[]
+  authors       GameAuthorAssignment[]
+  comparisonsA  Comparison[]  @relation("GameA")
+  comparisonsB  Comparison[]  @relation("GameB")
+  chosenComparisons Comparison[] @relation("ChosenGame")
+  adjustedScores AdjustedScore[]
+  adjustedRankings AdjustedRanking[]
+}
+
+model GameCategory {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  games     GameCategoryAssignment[]
+}
+
+model GameCategoryAssignment {
+  id          String       @id @default(uuid())
+  game        Game        @relation(fields: [gameId], references: [id])
+  gameId      String
+  category    GameCategory @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  createdAt   DateTime    @default(now())
+
+  @@unique([gameId, categoryId])
+}
+
+model GameMechanic {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  games     GameMechanicAssignment[]
+}
+
+model GameMechanicAssignment {
+  id          String       @id @default(uuid())
+  game        Game        @relation(fields: [gameId], references: [id])
+  gameId      String
+  mechanic    GameMechanic @relation(fields: [mechanicId], references: [id])
+  mechanicId  String
+  createdAt   DateTime    @default(now())
+
+  @@unique([gameId, mechanicId])
+}
+
+model GameAuthor {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  games     GameAuthorAssignment[]
+}
+
+model GameAuthorAssignment {
+  id        String     @id @default(uuid())
+  game      Game      @relation(fields: [gameId], references: [id])
+  gameId    String
+  author    GameAuthor @relation(fields: [authorId], references: [id])
+  authorId  String
+  role      String?
+  createdAt DateTime  @default(now())
+
+  @@unique([gameId, authorId, role])
+}
+
+model UserGame {
+  id              String    @id @default(uuid())
+  user            User      @relation(fields: [userId], references: [id])
+  userId          String
+  game            Game      @relation(fields: [gameId], references: [id])
+  gameId          String
+  initialScore    Decimal   @default(5.5) @db.Decimal(10, 3)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Campos da coleção BGG
+  bggCollectionId String?   // ID do jogo na coleção do BGG
+  own            Boolean    @default(false)  // Possui o jogo
+  prevOwned      Boolean    @default(false)  // Já possuiu o jogo
+  forTrade       Boolean    @default(false)  // Disponível para troca
+  want           Boolean    @default(false)  // Quer o jogo
+  wantToPlay     Boolean    @default(false)  // Quer jogar
+  wantToBuy      Boolean    @default(false)  // Quer comprar
+  wishlist       Boolean    @default(false)  // Na lista de desejos
+  wishlistPriority Int      @default(0)      // Prioridade na lista de desejos (1-5)
+  preordered     Boolean    @default(false)  // Pré-encomendado
+  
+  // Ratings e comentários
+  userRating     Decimal?   @db.Decimal(4, 2) // Rating do usuário (1-10)
+  userComment    String?    @db.Text         // Comentário do usuário
+  
+  // Estatísticas de jogo
+  numPlays       Int        @default(0)      // Número de jogadas
+  lastPlayed     DateTime?                   // Última vez que jogou
+  
+  // Informações privadas
+  pricePaid      String?                     // Preço pago
+  currentValue   String?                     // Valor atual estimado
+  acquisitionDate DateTime?                  // Data de aquisição
+  acquiredFrom   String?                     // Onde/de quem adquiriu
+  
+  // Controle de sincronização
+  lastSync       DateTime?                   // Última sincronização com BGG
+  syncErrors     String?    @db.Text         // Erros de sincronização, se houver
+
+  @@unique([userId, gameId])
+}
+
+model Dimension {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  defaultWeight Decimal   @db.Decimal(5, 2)
+  isMandatory   Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  comparisons   Comparison[]
+  adjustedScores AdjustedScore[]
+}
+
+model AdjustedScore {
+  id          String    @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  game        Game     @relation(fields: [gameId], references: [id])
+  gameId      String
+  dimension   Dimension @relation(fields: [dimensionId], references: [id])
+  dimensionId String
+  score       Decimal  @db.Decimal(10, 3)
+  frequency   Int      @default(0)
+  timestamp   DateTime @default(now())
+
+  @@unique([userId, gameId, dimensionId])
+}
+
+model AdjustedRanking {
+  id              String    @id @default(uuid())
+  user            User     @relation(fields: [userId], references: [id])
+  userId          String
+  game            Game     @relation(fields: [gameId], references: [id])
+  gameId          String
+  normalizedScore Decimal  @db.Decimal(10, 3)
+  rankPosition    Int
+  timestamp       DateTime @default(now())
+
+  @@unique([userId, gameId])
+}
+
+model Comparison {
+  id            String    @id @default(uuid())
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String
+  gameA         Game     @relation("GameA", fields: [gameAId], references: [id])
+  gameAId       String
+  gameB         Game     @relation("GameB", fields: [gameBId], references: [id])
+  gameBId       String
+  chosenGame    Game     @relation("ChosenGame", fields: [chosenGameId], references: [id])
+  chosenGameId  String
+  dimension     Dimension @relation(fields: [dimensionId], references: [id])
+  dimensionId   String
+  comparisonDate DateTime @default(now())
+  createdAt     DateTime @default(now())
+} 

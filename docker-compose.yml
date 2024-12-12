@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: kestrel-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://kestrel:${DB_PASSWORD}@db:5432/kestrel_db
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+    depends_on:
+      - db
+    networks:
+      - kestrel-network
+
+  db:
+    image: postgres:14-alpine
+    container_name: kestrel-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=kestrel
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=kestrel_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - kestrel-network
+
+networks:
+  kestrel-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local 

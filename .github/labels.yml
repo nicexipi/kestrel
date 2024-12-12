@@ -1,0 +1,59 @@
+- name: "bug"
+  color: "d73a4a"
+  description: "Algo não está funcionando"
+
+- name: "documentation"
+  color: "0075ca"
+  description: "Melhorias ou adições à documentação"
+
+- name: "enhancement"
+  color: "a2eeef"
+  description: "Nova funcionalidade ou solicitação"
+
+- name: "good first issue"
+  color: "7057ff"
+  description: "Bom para contribuidores iniciantes"
+
+- name: "help wanted"
+  color: "008672"
+  description: "Ajuda extra necessária"
+
+- name: "invalid"
+  color: "e4e669"
+  description: "Isso não parece correto"
+
+- name: "question"
+  color: "d876e3"
+  description: "Mais informações são necessárias"
+
+- name: "wontfix"
+  color: "ffffff"
+  description: "Isso não será resolvido"
+
+- name: "dependencies"
+  color: "0366d6"
+  description: "Atualizações de dependências"
+
+- name: "frontend"
+  color: "1d76db"
+  description: "Relacionado ao frontend"
+
+- name: "backend"
+  color: "0e8a16"
+  description: "Relacionado ao backend"
+
+- name: "ci"
+  color: "fbca04"
+  description: "Relacionado à integração contínua"
+
+- name: "security"
+  color: "b60205"
+  description: "Relacionado à segurança"
+
+- name: "performance"
+  color: "5319e7"
+  description: "Melhorias de performance"
+
+- name: "tests"
+  color: "fef2c0"
+  description: "Relacionado a testes" 
