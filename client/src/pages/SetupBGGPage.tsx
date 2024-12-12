@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
 import axios, { AxiosError } from 'axios';
-import { DiceIcon } from 'lucide-react';
+import { Dice6Icon } from 'lucide-react';
 
 interface ApiError {
   error: string;
@@ -57,7 +57,7 @@ export const SetupBGGPage = (): JSX.Element => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
-            <DiceIcon className="h-12 w-12 text-primary" />
+            <Dice6Icon className="h-12 w-12 text-primary" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">
             Configurar BoardGameGeek

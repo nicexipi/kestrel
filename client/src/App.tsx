@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { WelcomePage } from './pages/WelcomePage';
 import { RegisterPage } from './pages/RegisterPage';
 import { LoginPage } from './pages/LoginPage';
@@ -57,6 +57,13 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }): JSX
 };
 
 function AppRoutes(): JSX.Element {
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <Routes>
       {/* Rotas públicas */}
@@ -87,7 +94,14 @@ function AppRoutes(): JSX.Element {
       
       <Route path="/compare" element={
         <PrivateRoute>
-          <ComparisonPage />
+          <ComparisonPage 
+            dimensionId="default"
+            dimensionName="Geral"
+            onComparisonComplete={() => {
+              // Atualizar ranking ou fazer outras ações necessárias
+              console.log('Comparação completada');
+            }}
+          />
         </PrivateRoute>
       } />
 
