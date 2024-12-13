@@ -193,9 +193,105 @@ const logout = async (req, res) => {
   }
 };
 
+// Obter perfil do utilizador
+const getProfile = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+        bggUsername: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Utilizador não encontrado' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    logger.error('Erro ao obter perfil:', error);
+    res.status(500).json({ error: 'Erro ao obter perfil' });
+  }
+};
+
+// Atualizar perfil do utilizador
+const updateProfile = async (req, res) => {
+  try {
+    const { name, email, currentPassword, newPassword, bggUsername } = req.body;
+    const userId = req.userId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Utilizador não encontrado' });
+    }
+
+    // Se estiver a mudar a password, verificar a password atual
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ error: 'Password atual é necessária' });
+      }
+
+      const validPassword = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!validPassword) {
+        return res.status(401).json({ error: 'Password atual incorreta' });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(newPassword, salt);
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash }
+      });
+    }
+
+    // Atualizar outros dados do perfil
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: name || user.name,
+        email: email || user.email,
+        bggUsername: bggUsername || user.bggUsername
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        bggUsername: true,
+        updatedAt: true
+      }
+    });
+
+    res.json(updatedUser);
+  } catch (error) {
+    logger.error('Erro ao atualizar perfil:', error);
+    res.status(500).json({ error: 'Erro ao atualizar perfil' });
+  }
+};
+
+const router = require('express').Router();
+
+router.post('/register', register);
+router.post('/login', login);
+router.post('/refresh', refresh);
+router.post('/logout', logout);
+router.get('/profile', getProfile);
+router.put('/profile', updateProfile);
+
 module.exports = {
   register,
   login,
   refresh,
-  logout
-}; 
+  logout,
+  getProfile,
+  updateProfile,
+  router
+};

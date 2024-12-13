@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.server
     container_name: kestrel-app
     restart: unless-stopped
     ports:
@@ -11,6 +13,9 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://kestrel:${DB_PASSWORD}@db:5432/kestrel_db
       - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - PORT=3000
+      - BGG_API_BASE_URL=https://boardgamegeek.com/xmlapi2
     volumes:
       - ./src:/app/src
       - ./prisma:/app/prisma
@@ -18,6 +23,27 @@ services:
       - ./package-lock.json:/app/package-lock.json
     depends_on:
       - db
+    networks:
+      - kestrel-network
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: kestrel-client
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3000
+    volumes:
+      - ./client/src:/app/src
+      - ./client/tsconfig.json:/app/tsconfig.json
+      - ./client/tsconfig.node.json:/app/tsconfig.node.json
+      - ./client/vite.config.ts:/app/vite.config.ts
+    depends_on:
+      - app
     networks:
       - kestrel-network
 

@@ -35,8 +35,7 @@ class SyncService {
         
         const users = await prisma.user.findMany({
           where: {
-            bggUsername: { not: null },
-            active: true,
+            bggUsername: { not: null }
           },
           select: {
             id: true,

@@ -1,0 +1,29 @@
+name: Commit Validation
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  validate-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Validate Conventional Commits
+        uses: wagoid/commitlint-github-action@v5
+        with:
+          configFile: .commitlintrc.json
+          
+      - name: Check Branch Name
+        run: |
+          BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          if [[ ! $BRANCH_NAME =~ ^(feature|fix|docs|chore|refactor|test)/[a-z0-9-]+$ ]] && [[ $BRANCH_NAME != "master" ]]; then
+            echo "Branch name '$BRANCH_NAME' does not follow convention"
+            echo "Should be: feature/*, fix/*, docs/*, chore/*, refactor/*, test/*"
+            exit 1
+          fi

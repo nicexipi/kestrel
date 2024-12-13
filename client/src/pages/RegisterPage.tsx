@@ -15,15 +15,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'O nome deve ter pelo menos 2 caracteres'),
+  username: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
   email: z.string().email('Email inválido'),
-  password: z.string()
-    .min(8, 'A password deve ter pelo menos 8 caracteres')
-    .regex(/[A-Z]/, 'A password deve conter pelo menos uma letra maiúscula')
-    .regex(/[a-z]/, 'A password deve conter pelo menos uma letra minúscula')
-    .regex(/[0-9]/, 'A password deve conter pelo menos um número'),
+  password: z.string().min(8, 'Password deve ter pelo menos 8 caracteres'),
   bggUsername: z.string().optional(),
 });
 
@@ -42,7 +39,12 @@ export const RegisterPage: React.FC = () => {
 
   const onSubmit = async (data: RegisterFormData): Promise<void> => {
     try {
-      const response = await axios.post('/api/auth/register', data);
+      const response = await axios.post('/api/auth/register', {
+        name: data.username,
+        email: data.email,
+        password: data.password,
+        bggUsername: data.bggUsername
+      });
       localStorage.setItem('token', response.data.token);
       
       if (data.bggUsername) {
@@ -74,88 +76,88 @@ export const RegisterPage: React.FC = () => {
             Junte-se ao Kestrel e descubra seus jogos favoritos
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">
-                Nome
-              </label>
+              <Label htmlFor="username">Nome</Label>
               <Input
-                id="name"
+                id="username"
+                type="text"
+                {...register('username')}
                 placeholder="Seu nome"
-                {...register('name')}
               />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name.message}</p>
+              {errors.username && (
+                <p className="text-sm text-red-500">{errors.username.message}</p>
               )}
             </div>
-
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="seu@email.com"
                 {...register('email')}
+                placeholder="seu.email@exemplo.com"
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+                <p className="text-sm text-red-500">{errors.email.message}</p>
               )}
             </div>
-
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Password
-              </label>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
                 {...register('password')}
+                placeholder="********"
               />
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-sm text-red-500">{errors.password.message}</p>
               )}
             </div>
-
             <div className="space-y-2">
-              <label htmlFor="bggUsername" className="text-sm font-medium">
-                Username BGG <span className="text-muted-foreground">(opcional)</span>
-              </label>
+              <Label htmlFor="bggUsername">
+                Username BGG (opcional)
+              </Label>
               <Input
                 id="bggUsername"
-                placeholder="Seu username no BoardGameGeek"
+                type="text"
                 {...register('bggUsername')}
+                placeholder="Seu username no BoardGameGeek"
               />
               <p className="text-sm text-muted-foreground">
                 Pode adicionar depois se preferir
               </p>
+              {errors.bggUsername && (
+                <p className="text-sm text-red-500">{errors.bggUsername.message}</p>
+              )}
             </div>
-
             {errors.root && (
-              <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-md">
-                {errors.root.message}
-              </div>
+              <p className="text-sm text-red-500">{errors.root.message}</p>
             )}
-
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
               className="w-full"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'A criar conta...' : 'Criar Conta'}
+              Criar Conta
             </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">
-            Já tem uma conta?{' '}
-            <Link to="/login" className="text-primary hover:underline">
-              Faça login
-            </Link>
-          </p>
-        </CardFooter>
+            <p className="text-sm text-center">
+              Já tem uma conta?{' '}
+              <a
+                href="/login"
+                className="text-primary hover:underline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/login');
+                }}
+              >
+                Faça login
+              </a>
+            </p>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );

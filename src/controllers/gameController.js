@@ -250,57 +250,97 @@ const createGame = async (req, res) => {
   }
 };
 
-// Listar todos os jogos
+// Listar jogos
 const listGames = async (req, res) => {
   try {
     const { userId } = req;
-    const games = await prisma.game.findMany({
-      include: {
-        categories: {
-          include: {
-            category: true
-          }
-        },
-        mechanics: {
-          include: {
-            mechanic: true
-          }
-        },
-        authors: {
-          include: {
-            author: true
-          }
-        },
-        userGames: {
-          where: {
-            userId
-          }
+    const { owned, wishlist, page = 1, limit = 20, search } = req.query;
+
+    const where = {};
+    
+    if (owned === 'true' || wishlist === 'true') {
+      where.userGames = {
+        some: {
+          userId,
+          ...(owned === 'true' && { own: true }),
+          ...(wishlist === 'true' && { wishlist: true })
         }
+      };
+    }
+
+    if (search) {
+      where.name = {
+        contains: search,
+        mode: 'insensitive'
+      };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [games, total] = await Promise.all([
+      prisma.game.findMany({
+        where,
+        include: {
+          userGames: {
+            where: { userId },
+            select: {
+              own: true,
+              wishlist: true,
+              userRating: true,
+              numPlays: true
+            }
+          },
+          categories: {
+            include: {
+              category: true
+            }
+          },
+          mechanics: {
+            include: {
+              mechanic: true
+            }
+          }
+        },
+        skip,
+        take: parseInt(limit)
+      }),
+      prisma.game.count({ where })
+    ]);
+
+    res.json({
+      games,
+      pagination: {
+        total,
+        pages: Math.ceil(total / limit),
+        currentPage: parseInt(page),
+        perPage: parseInt(limit)
       }
     });
-
-    // Adicionar flag de propriedade
-    const gamesWithOwnership = games.map(game => ({
-      ...game,
-      owned: game.userGames.length > 0
-    }));
-
-    res.json(gamesWithOwnership);
   } catch (error) {
     console.error('Erro ao listar jogos:', error);
     res.status(500).json({ error: 'Erro ao listar jogos' });
   }
 };
 
-// Buscar jogo por ID
+// Obter jogo por ID
 const getGameById = async (req, res) => {
   try {
     const { id } = req.params;
     const { userId } = req;
 
     const game = await prisma.game.findUnique({
-      where: { id },
+      where: { id: parseInt(id) },
       include: {
+        userGames: {
+          where: { userId },
+          select: {
+            own: true,
+            wishlist: true,
+            userRating: true,
+            numPlays: true,
+            userComment: true
+          }
+        },
         categories: {
           include: {
             category: true
@@ -314,24 +354,6 @@ const getGameById = async (req, res) => {
         authors: {
           include: {
             author: true
-          }
-        },
-        userGames: {
-          where: {
-            userId
-          }
-        },
-        adjustedScores: {
-          where: {
-            userId
-          },
-          include: {
-            dimension: true
-          }
-        },
-        adjustedRankings: {
-          where: {
-            userId
           }
         }
       }
@@ -341,21 +363,10 @@ const getGameById = async (req, res) => {
       return res.status(404).json({ error: 'Jogo não encontrado' });
     }
 
-    // Adicionar informações de propriedade e pontuações
-    const gameWithDetails = {
-      ...game,
-      owned: game.userGames.length > 0,
-      scores: game.adjustedScores.reduce((acc, score) => {
-        acc[score.dimension.name] = score.score;
-        return acc;
-      }, {}),
-      ranking: game.adjustedRankings[0]?.rankPosition
-    };
-
-    res.json(gameWithDetails);
+    res.json(game);
   } catch (error) {
-    console.error('Erro ao buscar jogo:', error);
-    res.status(500).json({ error: 'Erro ao buscar jogo' });
+    console.error('Erro ao obter jogo:', error);
+    res.status(500).json({ error: 'Erro ao obter jogo' });
   }
 };
 
@@ -363,34 +374,19 @@ const getGameById = async (req, res) => {
 const updateGame = async (req, res) => {
   try {
     const { id } = req.params;
-    let updateData = {
-      ...req.body,
-      userId: req.user.id
-    };
-
-    // Se fornecido BGG ID, atualizar com dados do BGG
-    if (updateData.bggId) {
-      try {
-        const bggData = await bggService.getGameDetails(updateData.bggId);
-        updateData = {
-          ...updateData,
-          name: bggData.name,
-          yearPublished: bggData.yearPublished,
-          minPlayers: bggData.minPlayers,
-          maxPlayers: bggData.maxPlayers,
-          playtime: `${bggData.playingTime} min`,
-          imageUrl: bggData.image,
-          complexity: bggData.stats.averageWeight
-        };
-      } catch (error) {
-        console.error('Erro ao buscar dados do BGG:', error);
-        // Continuar com os dados fornecidos se houver erro no BGG
-      }
-    }
+    const { name, yearPublished, minPlayers, maxPlayers, playtime, imageUrl, complexity } = req.body;
 
     const game = await prisma.game.update({
-      where: { id },
-      data: updateData
+      where: { id: parseInt(id) },
+      data: {
+        name,
+        yearPublished,
+        minPlayers,
+        maxPlayers,
+        playtime,
+        imageUrl,
+        complexity
+      }
     });
 
     res.json(game);
@@ -400,63 +396,19 @@ const updateGame = async (req, res) => {
   }
 };
 
-// Deletar jogo
+// Apagar jogo
 const deleteGame = async (req, res) => {
   try {
     const { id } = req.params;
+
     await prisma.game.delete({
-      where: { id }
+      where: { id: parseInt(id) }
     });
 
-    res.status(204).send();
+    res.json({ message: 'Jogo apagado com sucesso' });
   } catch (error) {
-    console.error('Erro ao deletar jogo:', error);
-    res.status(500).json({ error: 'Erro ao deletar jogo' });
-  }
-};
-
-// Adicionar jogo à coleção do utilizador
-const addGameToCollection = async (req, res) => {
-  try {
-    const { gameId } = req.body;
-    const { userId } = req;
-
-    const userGame = await prisma.userGame.create({
-      data: {
-        userId,
-        gameId
-      },
-      include: {
-        game: true
-      }
-    });
-
-    res.status(201).json(userGame);
-  } catch (error) {
-    console.error('Erro ao adicionar jogo à coleção:', error);
-    res.status(500).json({ error: 'Erro ao adicionar jogo à coleção' });
-  }
-};
-
-// Remover jogo da coleção do utilizador
-const removeGameFromCollection = async (req, res) => {
-  try {
-    const { gameId } = req.params;
-    const { userId } = req;
-
-    await prisma.userGame.delete({
-      where: {
-        userId_gameId: {
-          userId,
-          gameId
-        }
-      }
-    });
-
-    res.status(204).send();
-  } catch (error) {
-    console.error('Erro ao remover jogo da coleção:', error);
-    res.status(500).json({ error: 'Erro ao remover jogo da coleção' });
+    console.error('Erro ao apagar jogo:', error);
+    res.status(500).json({ error: 'Erro ao apagar jogo' });
   }
 };
 
@@ -467,7 +419,5 @@ module.exports = {
   listGames,
   getGameById,
   updateGame,
-  deleteGame,
-  addGameToCollection,
-  removeGameFromCollection
+  deleteGame
 }; 

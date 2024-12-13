@@ -87,4 +87,41 @@ jobs:
           cd client && npm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }} 
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/master'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push Docker images
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build and push server image
+          docker build -t $ECR_REGISTRY/kestrel-server:$IMAGE_TAG -f Dockerfile.server .
+          docker push $ECR_REGISTRY/kestrel-server:$IMAGE_TAG
+          
+          # Build and push client image
+          docker build -t $ECR_REGISTRY/kestrel-client:$IMAGE_TAG -f Dockerfile.client .
+          docker push $ECR_REGISTRY/kestrel-client:$IMAGE_TAG
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service --cluster kestrel-cluster --service kestrel-server --force-new-deployment
+          aws ecs update-service --cluster kestrel-cluster --service kestrel-client --force-new-deployment

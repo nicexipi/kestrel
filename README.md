@@ -1,10 +1,14 @@
 # Kestrel - Sistema de Ranking de Jogos de Tabuleiro
 
 [![CI/CD](https://github.com/nicexipi/kestrel/actions/workflows/ci.yml/badge.svg)](https://github.com/nicexipi/kestrel/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/nicexipi/kestrel/branch/master/graph/badge.svg)](https://codecov.io/gh/nicexipi/kestrel)
+[![Commitlint](https://github.com/nicexipi/kestrel/actions/workflows/commit-validation.yml/badge.svg)](https://github.com/nicexipi/kestrel/actions/workflows/commit-validation.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=nicexipi/kestrel)](https://dependabot.com)
 
 Sistema de classificação e ranking de jogos de tabuleiro usando análise comparativa.
 
-## 🚀 Tecnologias
+## Tecnologias
 
 ### Backend
 - Node.js + Express.js
@@ -29,14 +33,14 @@ Sistema de classificação e ranking de jogos de tabuleiro usando análise compa
 - Docker
 - GitHub Actions (em breve)
 
-## 📋 Pré-requisitos
+## Pré-requisitos
 
 - Node.js (v14 ou superior)
 - PostgreSQL
 - Docker (opcional, mas recomendado)
 - Git
 
-## 🔧 Instalação
+## Instalação
 
 1. Clone o repositório:
 ```bash
@@ -78,7 +82,7 @@ cd client
 npm run dev
 ```
 
-## 🗄️ Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 kestrel/
@@ -100,7 +104,7 @@ kestrel/
 └── docs/                # Documentação
 ```
 
-## 🔐 Variáveis de Ambiente
+## Variáveis de Ambiente
 
 ```env
 # Database
@@ -119,7 +123,7 @@ NODE_ENV=development
 BGG_API_BASE_URL="https://boardgamegeek.com/xmlapi2"
 ```
 
-## 📦 Deploy
+## Deploy
 
 ### Docker
 
@@ -147,7 +151,7 @@ cd ..
 npm start
 ```
 
-## 🛠️ Desenvolvimento
+## Desenvolvimento
 
 ### Comandos Úteis
 
@@ -175,13 +179,54 @@ npm test
 - Commits seguem o padrão Conventional Commits
 - Documentação em português de Portugal
 
-## 📄 Documentação
+## Testes
+
+### Executando Testes
+
+```bash
+# Executar todos os testes
+npm test
+
+# Executar testes com cobertura
+npm run test:coverage
+
+# Executar testes em modo watch
+npm run test:watch
+```
+
+### Estrutura de Testes
+
+```
+src/
+├── __tests__/          # Testes de integração
+├── services/
+│   └── __tests__/      # Testes unitários dos serviços
+├── controllers/
+│   └── __tests__/      # Testes unitários dos controllers
+└── utils/
+    └── __tests__/      # Testes unitários dos utilitários
+```
+
+### Cobertura de Código
+
+- Mínimo de 80% de cobertura exigido
+- Relatórios de cobertura em `coverage/lcov-report/index.html`
+- Monitoramento via Codecov em cada PR
+
+### Boas Práticas
+
+- Usar padrão Arrange-Act-Assert
+- Mockar dependências externas
+- Testar casos de sucesso e erro
+- Manter testes focados e legíveis
+
+## Documentação
 
 - [API](./API.md)
 - [Contribuição](./CONTRIBUTING.md)
 - [Changelog](./CHANGELOG.md)
 
-## 🔍 Features
+## Features
 
 - [x] Autenticação JWT com refresh token
 - [x] Integração com BGG
@@ -195,16 +240,16 @@ npm test
 - [ ] CI/CD
 - [ ] Backup de dados
 
-## 📝 Licença
+## Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 👥 Autores
+## Autores
 
 - Desenvolvedor Principal - [Seu Nome]
 - [Lista de contribuidores](https://github.com/seu-usuario/kestrel/contributors)
 
-## 🤝 Contribuição
+## Contribuição
 
 1. Fork o projeto
 2. Crie sua feature branch (`git checkout -b feature/AmazingFeature`)
@@ -212,10 +257,10 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
-## 📞 Suporte
+## Suporte
 
 - Email: support@kestrel.example.com
 - Issues: [GitHub Issues](https://github.com/seu-usuario/kestrel/issues)
 - Discord: [Servidor Kestrel](https://discord.gg/kestrel) 
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes. 
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.

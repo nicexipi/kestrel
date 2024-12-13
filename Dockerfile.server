@@ -1,0 +1,45 @@
+# Build stage
+FROM node:18-alpine AS builder
+
+# Instalar dependências do sistema
+RUN apk add --no-cache openssl openssl-dev
+
+# Criar diretório da aplicação
+WORKDIR /app
+
+# Copiar arquivos de dependências do servidor
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# Instalar dependências do servidor
+RUN npm ci
+
+# Gerar cliente Prisma
+RUN npx prisma generate
+
+# Copiar código fonte do servidor
+COPY src ./src
+COPY tsconfig.json ./
+
+# Build da aplicação
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copiar apenas os arquivos necessários do stage anterior
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/prisma ./prisma
+
+# Expor porta
+EXPOSE 3000
+
+# Definir variáveis de ambiente
+ENV NODE_ENV=production
+
+# Comando para iniciar a aplicação
+CMD ["npm", "run", "start:prod"]

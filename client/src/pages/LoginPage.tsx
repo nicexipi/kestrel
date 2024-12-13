@@ -5,11 +5,8 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import axios, { AxiosError } from 'axios';
-
-interface ApiError {
-  error: string;
-}
+import { useAuth } from '@/contexts/auth-hooks';
+import { useEffect } from 'react';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -19,6 +16,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export const LoginPage = (): JSX.Element => {
+  const { login, user, isLoading } = useAuth();
   const navigate = useNavigate();
   const {
     register,
@@ -29,18 +27,45 @@ export const LoginPage = (): JSX.Element => {
     resolver: zodResolver(loginSchema),
   });
 
+  useEffect(() => {
+    if (user) {
+      console.log('Usuário já autenticado, redirecionando...', user);
+      navigate('/');
+    }
+  }, [user, navigate]);
+
   const onSubmit = async (data: LoginFormData): Promise<void> => {
     try {
-      const response = await axios.post('/api/auth/login', data);
-      localStorage.setItem('token', response.data.token);
-      navigate('/compare');
-    } catch (err) {
-      const error = err as AxiosError<ApiError>;
+      console.log('Iniciando tentativa de login...', { email: data.email });
+      await login(data.email, data.password);
+      console.log('Login bem-sucedido');
+    } catch (error: any) {
+      console.error('Erro durante o login:', error);
+      
       setError('root', {
-        message: error.response?.data?.error || 'Erro ao fazer login',
+        message: error instanceof Error ? error.message : 'Erro ao fazer login',
       });
+
+      if (error.response?.data?.errors) {
+        const serverErrors = error.response.data.errors;
+        Object.keys(serverErrors).forEach((field) => {
+          if (field in loginSchema.shape) {
+            setError(field as keyof LoginFormData, {
+              message: serverErrors[field],
+            });
+          }
+        });
+      }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>A carregar...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -65,6 +90,7 @@ export const LoginPage = (): JSX.Element => {
                 placeholder="seu@email.com"
                 {...register('email')}
                 aria-describedby="email-error"
+                disabled={isSubmitting}
               />
               {errors.email && (
                 <p 
@@ -85,6 +111,7 @@ export const LoginPage = (): JSX.Element => {
                 type="password"
                 {...register('password')}
                 aria-describedby="password-error"
+                disabled={isSubmitting}
               />
               {errors.password && (
                 <p 
@@ -108,7 +135,7 @@ export const LoginPage = (): JSX.Element => {
             <Button
               type="submit"
               className="w-full"
-              disabled={isSubmitting}
+              disabled={isSubmitting || isLoading}
             >
               {isSubmitting ? 'A entrar...' : 'Entrar'}
             </Button>

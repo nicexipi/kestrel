@@ -1,0 +1,64 @@
+name: Test Coverage
+
+on:
+  pull_request:
+    branches: [ master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: kestrel
+          POSTGRES_PASSWORD: kestrel123
+          POSTGRES_DB: kestrel_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd client && npm ci
+          
+      - name: Setup Database
+        run: |
+          npx prisma migrate deploy
+          npx prisma generate
+        env:
+          DATABASE_URL: postgresql://kestrel:kestrel123@localhost:5432/kestrel_test
+          
+      - name: Run tests with coverage
+        run: |
+          npm run test:coverage
+          cd client && npm run test:coverage
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://kestrel:kestrel123@localhost:5432/kestrel_test
+          JWT_SECRET: test-secret
+          
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info,./client/coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true

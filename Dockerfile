@@ -7,11 +7,11 @@ RUN apk add --no-cache openssl openssl-dev
 # Criar diretório da aplicação
 WORKDIR /app
 
-# Copiar arquivos de dependências
+# Copiar arquivos de dependências do servidor
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Instalar dependências
+# Instalar dependências do servidor
 RUN npm ci
 
 # Instalar nodemon globalmente
@@ -20,7 +20,19 @@ RUN npm install -g nodemon
 # Gerar cliente Prisma
 RUN npx prisma generate
 
-# Copiar código fonte
+# Configurar cliente
+WORKDIR /app/client
+COPY client/package*.json ./
+RUN npm ci
+
+# Construir cliente
+COPY client/ ./
+RUN npm run build
+
+# Voltar para o diretório principal
+WORKDIR /app
+
+# Copiar resto do código fonte do servidor
 COPY . .
 
 # Expor porta

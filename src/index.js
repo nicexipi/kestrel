@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 
 // Importar middlewares
 const { securityMiddleware, handleCSRFError } = require('./middleware/security');
@@ -23,11 +24,11 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware de logging
 app.use(requestLogger);
 
-// Rotas
-app.use('/api', require('./routes'));
+// Servir arquivos estáticos do cliente
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Rota de verificação de saúde
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
@@ -35,16 +36,24 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Rotas da API
+app.use('/api', require('./routes'));
+
 // Tratamento de erros CSRF
 app.use(handleCSRFError);
 
-// Tratamento de erros 404
-app.use((req, res) => {
-  logger.warn('Rota não encontrada:', {
-    method: req.method,
-    url: req.url,
-  });
-  res.status(404).json({ error: 'Rota não encontrada' });
+// Redirecionar todas as outras rotas para o index.html do cliente
+app.get('*', (req, res) => {
+  if (!req.path.startsWith('/api')) {
+    const clientPath = path.join(__dirname, '../client/dist/index.html');
+    if (!require('fs').existsSync(clientPath)) {
+      logger.error(`Arquivo não encontrado: ${clientPath}`);
+      return res.status(404).send('Aplicação cliente não encontrada');
+    }
+    res.sendFile(clientPath);
+  } else {
+    res.status(404).json({ error: 'Rota não encontrada' });
+  }
 });
 
 // Tratamento de erros global

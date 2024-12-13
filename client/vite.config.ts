@@ -6,12 +6,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3003,
+    host: true,
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '/api')
       }
     }
   },
@@ -19,5 +19,10 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src')
     }
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: true
   }
 }); 

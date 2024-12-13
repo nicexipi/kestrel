@@ -17,24 +17,29 @@ import { useAuth } from '@/contexts/auth-hooks';
 import './styles/globals.css';
 
 // Componente de loading
-const LoadingScreen = (): JSX.Element => (
-  <div className="min-h-screen flex items-center justify-center bg-background">
-    <div className="flex flex-col items-center space-y-4">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      <p className="text-muted-foreground">Carregando...</p>
+const LoadingScreen = (): JSX.Element => {
+  console.log('Rendering LoadingScreen');
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Componente para proteger rotas
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }): JSX.Element => {
   const { user, isLoading } = useAuth();
+  console.log('PrivateRoute:', { user, isLoading });
   
   if (isLoading) {
     return <LoadingScreen />;
   }
   
   if (!user) {
+    console.log('No user, redirecting to login');
     return <Navigate to="/login" replace />;
   }
   
@@ -44,12 +49,14 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }): JS
 // Componente para rotas públicas
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }): JSX.Element => {
   const { user, isLoading } = useAuth();
+  console.log('PublicRoute:', { user, isLoading });
   
   if (isLoading) {
     return <LoadingScreen />;
   }
   
   if (user) {
+    console.log('User found, redirecting to compare');
     return <Navigate to="/compare" replace />;
   }
   
@@ -58,6 +65,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }): JSX
 
 function AppRoutes(): JSX.Element {
   const { isLoading } = useAuth();
+  console.log('AppRoutes:', { isLoading });
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -97,8 +105,7 @@ function AppRoutes(): JSX.Element {
             dimensionId="default"
             dimensionName="Geral"
             onComparisonComplete={() => {
-              // Atualizar ranking ou fazer outras ações necessárias
-              console.log('Comparação completada');
+              console.log('Comparison completed');
             }}
           />
         </PrivateRoute>
@@ -129,12 +136,9 @@ function AppRoutes(): JSX.Element {
 }
 
 function App(): JSX.Element {
+  console.log('Rendering App');
   return (
-    <Router>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </Router>
+    <AppRoutes />
   );
 }
 

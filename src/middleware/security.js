@@ -6,7 +6,7 @@ const cors = require('cors');
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
     ? ['https://kestrel.example.com'] // Substituir pelo domínio real em produção
-    : ['http://localhost:3003'],
+    : ['http://localhost:3000', 'http://localhost:3003'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
@@ -19,31 +19,26 @@ const helmetConfig = {
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-      connectSrc: ["'self'", 'https://boardgamegeek.com'],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://rsms.me"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://rsms.me"],
+      connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3003"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'none'"],
+      manifestSrc: ["'self'"],
+      workerSrc: ["'self'", "blob:"],
     },
   },
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" },
 };
 
-// Configuração do CSRF
-const csrfProtection = csrf({
-  cookie: {
-    key: '_csrf',
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  },
-});
-
 // Middleware de segurança
 const securityMiddleware = [
   helmet(helmetConfig),
   cors(corsOptions),
-  csrfProtection,
 ];
 
 // Middleware para erros de CSRF
